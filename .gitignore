@@ -1,0 +1,15 @@
+*.DS_Store
+/.idea/
+/.bundle/
+.rbenv-gemsets
+.ruby-version
+*.sublime*
+.pryrc
+.env*
+.*.sw[a-z]
+.build
+.ruby-gemset
+*.orig
+/.notes/
+/.vscode/
+exernal-api/

@@ -1,0 +1,150 @@
+# A LOT OF THESE WONT WORK BECAUSE THEY NEED THE X-AMAZON-API-GATEWAY AUTHORIZATION PIECE FOR THE HEADERS
+#
+#
+# things that don't neatly fit as v1, v2, or redirect go here
+#
+# THIS ONE IS WEIRD AND IS V2 BUT NOT OAUTH
+/v2/appointment/listbyid/{appointmentid}:
+  get:
+    parameters:
+      - name: appointmentid
+        in: path
+        required: true
+        type: string
+      - name: authentication
+        in: query
+        required: true
+        type: string
+    responses:
+      200:
+        description: test placeholder
+/v2/service/authenticate:
+  post:
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        type: string
+    responses:
+      200:
+        description: test placeholder
+/v3/service/authenticate:
+  post:
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        type: string
+    responses:
+      200:
+        description: test placeholder
+/v2/service/logout:
+  post:
+    parameters:
+      - name: authorization
+        in: query
+        required: true
+        type: string
+    responses:
+      200:
+        description: test placeholder
+# PUT THIS UNDER MISC, IT'S NOT V1
+/inbound_mail:
+  post:
+    parameters:
+      - name: ee
+        in: body
+        required: true
+        type: string
+      - name: authentication
+        in: query
+        required: true
+        type: string
+    responses:
+      200:
+        description: test placeholder
+# AUTH_SERVICE PROXIES
+# /oauth2/authorize?client_id=#{client_id}&response_type=#{response_type}&practice_id=#{practice_id}&redirect_uri=#{redirect_uri_domain}
+/oauth2/authorization:
+  get:
+    parameters:
+      - name: access_token
+        in: query
+        required: true
+        type: false
+      - name: Authorization
+        in: header
+        required: true
+        type: false
+    summary: Authorization Details
+    description:
+      Show information about an authorization grant, such as the Practice ID, OAuth scopes, and the User who allowed it
+    tags:
+      - Authorization
+    responses:
+      200:
+        description: info about an authorization
+        schema:
+          $ref: OAuth2Authorization_Response
+/oauth2/access_token:
+  get:
+    parameters:
+      - name: client_id
+        in: query
+        required: true
+        type: string
+      - name: response_type
+        in: query
+        required: true
+        type: string
+      - name: practice_id
+        in: query
+        required: true
+        type: string
+      - name: redirect_uri
+        in: query
+        required: true
+        type: string
+      # probably need to put the ones with just the code or the emails from early on with Zocdoc here
+    responses:
+      200:
+        description: test placeholder
+  post:
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        type: string
+      - name: ee
+        in: body
+        required: true
+        type: string
+        # format: double
+      - name: grant_type
+        in: query
+        required: true
+        type: string
+        # format: double
+      - name: refresh_token
+        in: query
+        required: true
+        type: string
+        # format: double
+    responses:
+      200:
+        description: test placeholder
+/oauth2/token_info:
+  get:
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        type: string
+    summary: Token Details
+    description:
+      Show information about a token, such as the time remaining until it expires
+    tags:
+      - Authorization
+    responses:
+      200:
+        description: info about a token

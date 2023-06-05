@@ -1,0 +1,1538 @@
+/patients/{patient_id}:
+  get:
+    summary: Show Patient
+    description: |
+      Show a Patient by its ID
+    parameters:
+      - name: patient_id
+        in: path
+        description: GUID of the patient
+        required: true
+        type: string
+    tags:
+      - Patients
+    responses:
+      200:
+        description: details about a patient
+        schema:
+          $ref: PatientShow
+          #type: array
+          #items:
+          #  $ref: Patient
+      404:
+        description: patient not found for current practice
+  put:
+    summary: Update Patient
+    description: |
+      Update a Patient
+
+       parameter                     |options                                                                                                                                                                    |
+      -------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+      gender_code                    |Uses FHIR DSTU 1 (v0.0.82) administrative gender codes ([FHIR Documentation](http://www.hl7.org/FHIR/valueset-administrative-gender.html))          |
+      race_code                      |Uses HL7 Race Codes with "" as Declined to Specify. ([HL7 List](http://phinvads.cdc.gov/vads/ViewValueSet.action?oid=2.16.840.1.114222.4.11.6065))  |
+      marital_status_code            |Uses FHIR DSTU 1 (v0.0.82) administrative marital status codes. A, I and P are not supported. ([FHIR Documentation](http://www.hl7.org/FHIR/valueset-marital-status.html)) |
+      state_code                     |Uses FIPS 2 letter state abbreviations ([FIPS code listing](https://www.mcc.co.mercer.pa.us/dps/state_fips_code_listing.htm))                       |
+      language_code                  |Uses ISO639.2 Language Codes ([ISO639.2 Language list](http://www.loc.gov/standards/iso639-2/php/code_list.php))                                    |
+      drivers_license_state_code     |Uses USPS 2-Letter State Abbreviations                                                                                                              |
+      employment_status_code         |"E": Employed; "D": Disabled; "R": Retired; "P": Part Time; "U": Unknown; "S": Student'; "N": Not Employed                                          |
+      ethnicity_code                 |"U": Declined To Provide; "H": Hispanic or Latino; "N": Not Hispanic or Latino                                                                      |
+      student_status_code            |"F": Full Time; "P": Part Time; "N": Not A Student; "U": Unknown                                                                                    |
+
+    parameters:
+      - name: patient_id
+        in: path
+        description: GUID of the patient
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: patient update payload
+        required: true
+        type: string
+        format: double
+        schema:
+          $ref: PatientCreate
+    tags:
+      - Patients
+    responses:
+      204:
+        description: patient updated successfully
+      422:
+        description: validation error
+/patients/{patient_id}/insurances:
+  get:
+    summary: Show Patient Insurances
+    description: |
+      Show Patient Insurances
+    parameters:
+      - name: patient_id
+        in: path
+        description: GUID of the patient
+        required: true
+        type: string
+    tags:
+      - Patients
+    responses:
+      200:
+        description: details about a patient
+        schema:
+          $ref: PatientInsuranceShow
+      404:
+        description: patient not found for current practice
+  post:
+    summary: Create Patient Insurance
+    description: |
+      Create Patient Insurance
+
+      One Insurance Profile contains multiple Insurance Policies. There can be up to four Policies, prioritized from primary through quaternary.
+
+      For `responsible_party_relationship` and `insured_person_relationship`, the following Patient Relationship Types are supported:
+
+      ```
+      unknown
+      organ_donor
+      cadaver_donor
+      life_partner
+      nephew
+      significant_other
+      dependant_of_a_minor_dependant
+      ward
+      stepchild
+      handicapped_dependent
+      emancipated_minor
+      injured_plaintiff
+      child_where_insured_has_no_financial_responsibility
+      father
+      grandparent
+      self
+      attorney
+      other
+      domestic_partner
+      paternal_grandparent
+      maternal_grandparent
+      aunt_uncle
+      sibling
+      niece
+      foster_child
+      sponsored_dependent
+      child
+      grandchild
+      spouse
+      mother
+      foster_parent
+      employee
+      ```
+
+      For `insurance_policy_type`, the following Insurance Types are available:
+
+      ```
+      choice_epo
+      capitation
+      open_access
+      attorney
+      auto_insurance
+      champus
+      flat_fee_arrangement
+      hmo
+      medicaid
+      medikids
+      medipass_or_psn
+      pos
+      workers_compensation
+      healthy_kids
+      ppo
+      exclusive_provider_organization_(epo)
+      blue_cross_blue_shield
+      medicare_hmo
+      medicare_supplement
+      commercial_insurance
+      other_federal_program
+      federal_employees_program
+      indemnity_insurance
+      medicare_ppo
+      medicaid_hmo
+      medicare_railroad
+      medicare_b
+      medicare_a
+      mutually_defined
+      champ_va
+      medicare_pos
+      medicaid_newborn
+      choice_plus
+      ```
+
+      The `phone_type` field can be filled in with one of the following codes:
+
+      code |description|
+      -----------------|
+      B    | Business |
+      M    | Main |
+      F    | Fax |
+      TF   | TollFree |
+      V    | VOIP |
+      S    | Skype |
+      P    | Pager |
+      C    | Cell |
+      H    | Home |
+      SMS  | SMS |
+      S800 | State 800 |
+      N800 | National 800 |
+      FA   | Fax Attachment Number |
+
+      The `country` field of an Address should be filled in using a <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3">three-letter ISO3166 code</a>.
+    parameters:
+      - name: patient_id
+        in: path
+        description: GUID of the patient
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: Insurance Profile with Policies
+        required: true
+        type: string
+        schema:
+          $ref: InsuranceProfile_Request
+    tags:
+      - Patients
+    responses:
+      201:
+        description: details about a patient
+        schema:
+          $ref: InsuranceProfile_Response
+      404:
+        description: patient not found for current practice
+/patients:
+  post:
+    summary: Create Patient
+    description: |
+      Create a Patient
+
+       parameter                     |options                                                                                                                                             |
+      -------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+      gender_code                    |Uses FHIR DSTU 1 (v0.0.82) administrative gender codes ([FHIR Documentation](http://www.hl7.org/FHIR/valueset-administrative-gender.html))          |
+      race_code                      |Uses HL7 Race Codes with "" as Declined to Specify. ([HL7 List](http://phinvads.cdc.gov/vads/ViewValueSet.action?oid=2.16.840.1.114222.4.11.6065))  |
+      marital_status_code            |Uses FHIR DSTU 1 (v0.0.82) administrative marital status codes. A, I and P are not supported. ([FHIR Documentation](http://www.hl7.org/FHIR/valueset-marital-status.html))        |
+      state_code                     |Uses FIPS 2 letter state abbreviations ([FIPS code listing](https://www.mcc.co.mercer.pa.us/dps/state_fips_code_listing.htm))                       |
+      language_code                  |Uses ISO639.2 Language Codes ([ISO639.2 Language list](http://www.loc.gov/standards/iso639-2/php/code_list.php))                                    |
+      drivers_license_state_code     |Uses USPS 2-Letter State Abbreviations                                                                                                              |
+      employment_status_code         |"E": Employed; "D": Disabled; "R": Retired; "P": Part Time; "U": Unknown; "S": Student'; "N": Not Employed                                          |
+      ethnicity_code                 |"U": Declined To Provide; "H": Hispanic or Latino; "N": Not Hispanic or Latino                                                                      |
+      student_status_code            |"F": Full Time; "P": Part Time; "N": Not A Student; "U": Unknown                                                                                    |
+
+    parameters:
+      - name: query
+        in: body
+        description: patient creation payload
+        required: true
+        type: string
+        format: double
+        schema:
+          $ref: PatientCreate
+    tags:
+      - Patients
+    responses:
+      201:
+        description: patient created successfully
+        schema:
+          $ref: PatientCreate_Response
+          #type: array
+          #items:
+          #  $ref: Patient
+      422:
+        description: validation error
+/patients/search:
+  post:
+    summary: Search Patients
+    description: |
+      Search for a Patient
+
+      You must choose between searching by "terms" or by "fields".
+
+      When providing an array of "terms", the following patient attributes will be interrogated for a match:
+
+      - first name
+      - last name
+      - ssn
+      - patient number
+      - chart number
+      - driver's license
+      - email
+      - date_of_birth (*term must be in the format of MM/DD/YYYY, MM-DD-YYYY, MMDDYYYY, MMDDYY, MM/DD/YY, or MM-DD-YY*)
+      - insurance policy numbers
+      - insurance member numbers
+
+      When providing a "fields" object, results will match the provided values for the specific fields given.  Supported fields are:
+
+      - first_name
+      - last_name
+      - dob (*value must be in the format of MM/DD/YYYY, MM-DD-YYYY, MMDDYYYY, MMDDYY, MM/DD/YY, or MM-DD-YY*)
+      - gender (pass in 'm' for male or 'f' for female)
+      - phone_number
+
+    parameters:
+      - name: query
+        in: body
+        description: search query
+        required: true
+        type: string
+        format: double
+        schema:
+          $ref: PatientSearch_Request
+    tags:
+      - Patients
+    responses:
+      200:
+        description: details about a patient
+        schema:
+          #$ref: PatientSearch
+          type: array
+          items:
+            $ref: PatientSearch
+/appointment_availability:
+  get:
+    summary: List Available Appointment Time Slots
+    description: |
+      List Available Appointment Time Slots
+      
+      Parameter               | Required? | Type    | Instruction
+      ------------------------|-----------|---------|-------------------------------------
+      start_date              | Required  | String  | Format as YYYY-MM-DD
+      visit_reason_id         | Required  | Integer |
+      location_ids            | Required  | Integer | Can be a comma-separated list, ex: ```location_ids=100,101,105```
+      resource_ids            | Required  | Integer | Can be a comma-separated list, ex: ```resource_ids=200,201,205```
+      end_date                | Optional  | String  | Format as YYYY-MM-DD
+      meridian                | Optional  | String  | Pass in 'am' or 'pm', or both as a comma-separated list, ex: ```meridian=am,pm```. Defaults to include AM and PM.
+      dow (Days of the Week)  | Optional  | String  | Format as a string of binary numbers, from Sunday to Saturday, ex: ```dow=0101100``` represents Monday, Wednesday, and Thursday; ```dow=0111110``` represents all weekdays; ```dow=1000000``` represents only Sundays. Defaults to "0111110" (weekdays).
+      duration                | Optional  | Integer | Dictates the length of the returned appointment time slots. Integer represents a number of minutes. Defaults to visit_reason's default duration.
+
+      - For performance reasons, the result is restricted to 100 time slots. If no end_date is given, it will return the first 100 available slots.
+      - Visit Reasons have a default appointment duration attached to them. If no duration is given, that visit reasons's default duration will be used.
+
+    parameters:
+      - name: start_date
+        in: query
+        description: Start Date
+        required: true
+        type: string
+        format: double
+      - name: visit_reason_id
+        in: query
+        description: Visit Reason ID
+        required: true
+        type: string
+        format: double
+      - name: location_ids
+        in: query
+        description: Location IDs
+        required: true
+        type: string
+        format: double
+      - name: resource_ids
+        in: query
+        description: Resource IDs
+        required: true
+        type: string
+        format: double
+      - name: end_date
+        in: query
+        description: End Date
+        required: false
+        type: string
+        format: double
+      - name: meridian
+        in: query
+        description: Meridian (AM or PM)
+        required: false
+        type: string
+        format: double
+      - name: dow
+        in: query
+        description: Day of the Week
+        required: false
+        type: string
+        format: double
+      - name: duration
+        in: query
+        description: Appointment Duration
+        required: false
+        type: string
+        format: double
+    tags:
+      - Appointment Availability
+    responses:
+      200:
+        description: list of appointment availabilities
+        schema:
+          type: array
+          items:
+           $ref: ListAppointmentAvailabilities_Response
+        responseParameters:
+          method.response.header.Link: integration.response.header.Link
+        headers:
+          Link:
+            description: pagination links
+            type: string      
+/appointments:
+  get:
+    summary: List Appointments
+    description: |
+      List Appointments with Filtering
+
+      Filtering params are optional.
+      Without date filtering, Appointments will be returned for today's date.
+
+      Results are paginated to 100 Appointments per page. The `page` parameter sets the page number to return, the default being `1`. Pagination state is indicated by the Link header, in accordance with <a href="https://tools.ietf.org/html/rfc5988#section-5">RFC5988</a>. The `Link` header contains URIs to the first, next, previous, and last pages in the result set. For an example see <a href="/v2/#pagination">Pagination</a>.
+    parameters:
+      - name: location_id
+        in: query
+        description: Location ID
+        required: false
+        type: string
+        format: double
+      - name: resource_id
+        in: query
+        description: Resource ID
+        required: false
+        type: string
+        format: double
+      - name: start_date
+        in: query
+        description: Start Date for date filtering
+        required: false
+        type: string
+        format: double
+      - name: end_date
+        in: query
+        description: End Date for date filtering
+        required: false
+        type: string
+        format: double
+      - name: page
+        in: query
+        description: page number
+        required: false
+        type: string
+        format: double
+      - name: visit_reason_ids
+        in: query
+        description: Visit Reason Id or Ids
+        required: false
+        type: string
+        format: double
+      - name: patient_ids
+        in: query
+        description: Patient ID or IDs
+        required: false
+        type: string
+        format: double
+      # - name: use_pagination
+      #   in: query
+      #   description: use pagination
+      #   required: false
+      #   type: boolean
+      #   format: double
+    tags:
+      - Appointments
+    responses:
+      200:
+        description: list of appointments
+        schema:
+          type: array
+          items:
+           $ref: ListAppointments_Response
+        responseParameters:
+          method.response.header.Link: integration.response.header.Link
+        headers:
+          Link:
+            description: pagination links
+            type: string
+  post:
+    summary: Create Appointment
+    description: |
+      Create an Appointment
+
+      If no ```end_time``` is specified, the end_time will be calculated based on the duration specified in Nature of Visit.
+    parameters:
+      - name: appointment
+        in: body
+        description: appointment information
+        required: true
+        type: string
+        format: double
+        schema:
+          $ref: CreateAppointment_Request
+    tags:
+      - Appointments
+    responses:
+      201:
+        description: appointment created successfully
+        schema:
+          $ref: CreateAppointment_Response
+          #type: array
+          #items:
+          #  $ref: Patient
+      422:
+        description: validation error
+        # BEGIN MIKE
+/ccda:
+  get:
+    summary: Get Ccda Request
+    description: |
+      Get a Ccda Request
+
+    tags:
+      - Ccda
+    responses:
+      200:
+        description: Get Ccda Request successfully.
+        schema:
+          $ref: GetCcda_Response
+  post:
+    summary: Create Ccda Request
+    description: |
+      Create a Ccda Request for all patients for a business entity.
+
+    parameters:
+    tags:
+      - Ccda
+    responses:
+      201:
+        description: Successfully Created Ccda Request.
+        schema:
+          $ref: CreateCcda_Response
+        # END MIKE
+# /schedule/{date}/getblockouts/{location_id}/{resource_id}:
+#   get:
+#     summary: List Appointment Blockouts
+#     description: |
+#       List Appointment Blockouts by Date, Location and Resource
+#     parameters:
+#       - name: date
+#         in: path
+#         description: Appointment Date
+#         required: true
+#         type: string
+#         format: double
+#       - name: location_id
+#         in: path
+#         description: Location ID
+#         required: true
+#         type: string
+#         format: double
+#       - name: resource_id
+#         in: path
+#         description: Resource ID
+#         required: true
+#         type: string
+#         format: double
+#     tags:
+#       - Appointments
+#     responses:
+#       200:
+#         description: list of appointment blockouts
+#         schema:
+#           $ref: AppointmentBlockoutsByLocation_Response_array
+#           # $ref: AppointmentBlockoutsByLocation_Response_appointment_blockout
+#           type: array
+#           #items:
+#           #  $ref: Patient
+/appointment_blockouts:
+  get:
+    summary: List Appointment Blockouts
+    description: |
+      List Appointment Blockouts with Filtering
+
+      Filtering params are optional.
+      If date filtering is provided, occurences of each blockout within the given timespan will be included.
+      Without date filtering, blockouts will be returned for today's date.
+    parameters:
+      - name: location_id
+        in: query
+        description: Location ID
+        required: false
+        type: string
+        format: double
+      - name: resource_id
+        in: query
+        description: Resource ID
+        required: false
+        type: string
+        format: double
+      - name: start_date
+        in: query
+        description: Start Date for date filtering
+        required: false
+        type: string
+        format: double
+      - name: end_date
+        in: query
+        description: End Date for date filtering
+        required: false
+        type: string
+        format: double
+    tags:
+      - Appointment Blockouts
+    responses:
+      200:
+        description: list of appointment blockouts
+        schema:
+          # $ref: AppointmentBlockouts_Response
+          type: array
+          items:
+           $ref: AppointmentBlockouts_Response
+        responseParameters:
+          method.response.header.Link: integration.response.header.Link
+        headers:
+          Link:
+            description: pagination links
+            type: string
+/appointment_templates:
+  get:
+    summary: List Appointment Templates
+    description: |
+      List Appointment Templates for a Practice
+
+      Filtering params are optional.
+      If date filtering is provided, occurences of each template within the given timespan will be included.
+      Without date filtering, all templates for the Practice will be returned.
+
+      Results are paginated to 20 Appointment Templates per page. The `page` parameter sets the page number to return, the default being `1`. Pagination state is indicated by the Link header, in accordance with <a href="https://tools.ietf.org/html/rfc5988#section-5">RFC5988</a>. The `Link` header contains URIs to the first, next, previous, and last pages in the result set. For an example see <a href="/v2/#pagination">Pagination</a>.
+    parameters:
+      - name: start_date
+        in: query
+        description: Start Date
+        required: false
+        type: string
+        format: double
+      - name: end_date
+        in: query
+        description: End Date
+        required: false
+        type: string
+        format: double
+      - name: location_id
+        in: query
+        description: Location ID
+        required: false
+        type: string
+        format: double
+      - name: page
+        in: query
+        description: page number
+        required: false
+        type: string
+        format: double
+      - name: resource_id
+        in: path
+        description: Resource ID
+        required: false
+        type: string
+        format: double
+    tags:
+      - Appointment Templates
+    responses:
+      200:
+        description: list of appointment templates
+        schema:
+          #$ref: AppointmentStatus
+          type: array
+          items:
+            $ref: AppointmentTemplates_Response
+        responseParameters:
+          method.response.header.Link: integration.response.header.Link
+        headers:
+          Link:
+            description: pagination links
+            type: string
+/appointment_resources/{resource_id}/appointment_templates:
+  get:
+    summary: List Appointment Templates By Resource
+    description: |
+      List Appointment Templates for a Practice filtered by Resource
+
+      Filtering params are optional.
+      If date filtering is provided, occurences of each template within the given timespan will be included.
+      Without date filtering, all templates for the Practice will be returned.
+
+      Results are paginated to 20 Appointment Templates per page. The `page` parameter sets the page number to return, the default being `1`. Pagination state is indicated by the Link header, in accordance with <a href="https://tools.ietf.org/html/rfc5988#section-5">RFC5988</a>. The `Link` header contains URIs to the first, next, previous, and last pages in the result set. For an example see <a href="/v2/#pagination">Pagination</a>.
+    parameters:
+      - name: start_date
+        in: query
+        description: Start Date
+        required: false
+        type: string
+        format: double
+      - name: end_date
+        in: query
+        description: End Date
+        required: false
+        type: string
+        format: double
+      - name: location_id
+        in: query
+        description: Location ID
+        required: false
+        type: string
+        format: double
+      - name: resource_id
+        in: path
+        description: Resource ID
+        required: true
+        type: string
+        format: double
+      - name: page
+        in: query
+        description: page number
+        required: false
+        type: string
+        format: double
+    tags:
+      - Appointment Templates
+    responses:
+      200:
+        description: list of appointment templates
+        schema:
+          #$ref: AppointmentStatus
+          type: array
+          items:
+            $ref: AppointmentTemplates_Response
+        responseParameters:
+          method.response.header.Link: integration.response.header.Link
+        headers:
+          Link:
+            description: pagination links
+            type: string
+/appointment_resources/{resource_id}:
+  get:
+    summary: Show Appointment Resource
+    description: |
+      Show Appointment Resource and its Default Provider
+    parameters:
+      - name: resource_id
+        in: path
+        description: Appointment Resource ID
+        required: true
+        type: string
+        format: double
+    tags:
+      - Appointment Resources
+    responses:
+      200:
+        description: appointment resource
+        schema:
+          #$ref: AppointmentStatus
+          type: array
+          items:
+            $ref: ShowResource_Response
+/appointment_statuses:
+  get:
+    summary: List Appointment Statuses
+    description: |
+      List Appointment Statuses for a Practice
+    parameters:
+    tags:
+      - Appointments
+    responses:
+      200:
+        description: list of appointment statuses
+        schema:
+          #$ref: AppointmentStatus
+          type: array
+          items:
+            $ref: AppointmentStatus
+/appointment_cancellation_reasons:
+  get:
+    summary: List Appointment Cancellation Reasons
+    description: |
+      List Appointment Cancellation Reasons. Some are global, while others belong to specific Practices.
+      
+      By default, all Appointment Cancellation Reasons that could apply to a Practice are listed.
+    parameters:
+      - name: global_only
+        in: query
+        description: Only Show Global Cancellation Reasons
+        required: false
+        type: boolean
+        format: double
+    tags:
+      - Appointments
+    responses:
+      200:
+        description: list of appointment cancellation reasons
+        schema:
+          #$ref: AppointmentStatus
+          type: array
+          items:
+            $ref: AppointmentCancellationReason_Response
+/appointments/{appointment_id}:
+  get:
+    summary: Show Appointment
+    description: |
+      Show an Appointment, including the Patient's preferred_confirmation_method, with possible values of:
+
+      <i>null</i>, 'phone', 'email', 'text_message', 'fax', 'other', 'none'
+
+      Note that <i>null</i> and <i>"none"</i> are very different:
+        - A preferred_confirmation_method of <i>null</i> means there is no preference with regard to communication method.
+        - A preferred_confirmation_method of <i>'none'</i> means the Patient does not wish to be contacted at all.
+    parameters:
+      - name: appointment_id
+        in: path
+        description: GUID of the appointment
+        required: true
+        type: string
+        format: double
+    tags:
+      - Appointments
+    responses:
+      200:
+        description: appointment
+        schema:
+          $ref: ShowAppointment_Response
+          # type: array
+          # items:
+            # $ref: CHANGETHIS
+/appointments/{appointment_id}/confirmations:
+  get:
+    summary: List Appointment Confirmations
+    description: |
+      List confirmations for a particular appointment
+
+      The following Confirmation Methods will be used:
+      "other", "phone", "email", "text_message", "fax"
+
+      The following Confirmation Outcomes will be used:
+      "terminated", "undeliverable", "error", "responded", "processing", "message_sent", "left_message_to_reschedule", "incorrect_number", "confirmed", "line_busy", "no_answer", "left_message", "disconnected"
+
+      name                       |description                                   |
+      ---------------------------|----------------------------------------------|
+      terminated                 |Terminated by System                          |
+      undeliverable              |Undeliverable: Missing or Invalid Information |
+      error                      |Error Message                                 |
+      responded                  |Message Responded                             |
+      processing                 |Processing                                    |
+      message_sent               |Message Sent                                  |
+      left_message_to_reschedule |Left message to reschedule                    |
+      incorrect_number           |The phone number was not correct              |
+      confirmed                  |The patient confirmed the appointment         |
+      line_Busy                  |The line dialed was busy                      |
+      no_answer                  |No one answered the phone                     |
+      left_message               |Left a message                                |
+      disconnected               |Phone number disconnected                     |
+
+      &nbsp;
+    parameters:
+      - name: appointment_id
+        in: path
+        description: GUID of the appointment
+        required: true
+        type: string
+        format: double
+    tags:
+      - Appointment Confirmations
+    responses:
+      200:
+        description: appointment
+        schema:
+          type: array
+          items:
+            $ref: CreateAppointmentConfirmation_Response
+/appointments/{appointment_id}/confirmation:
+  post:
+    summary: Confirm Appointment
+    description: |
+      Record Attempt to Confirm an Appointment and its Outcome
+
+      The following Confirmation Methods can be used:
+      "other", "phone", "email", "text_message", "fax"
+
+      The following Confirmation Outcomes can be used:
+      "terminated", "undeliverable", "error", "responded", "processing", "message_sent", "left_message_to_reschedule", "incorrect_number", "confirmed", "line_busy", "no_answer", "left_message", "disconnected"
+
+      name                       |description                                   |
+      ---------------------------|----------------------------------------------|
+      terminated                 |Terminated by System                          |
+      undeliverable              |Undeliverable: Missing or Invalid Information |
+      error                      |Error Message                                 |
+      responded                  |Message Responded                             |
+      processing                 |Processing                                    |
+      message_sent               |Message Sent                                  |
+      left_message_to_reschedule |Left message to reschedule                    |
+      incorrect_number           |The phone number was not correct              |
+      confirmed                  |The patient confirmed the appointment         |
+      line_Busy                  |The line dialed was busy                      |
+      no_answer                  |No one answered the phone                     |
+      left_message               |Left a message                                |
+      disconnected               |Phone number disconnected                     |
+
+      &nbsp;
+
+      When passing "confirmed" as the Confirmation Outcome, the Appointment will be marked as Confirmed.
+
+      Before calling this endpoint, <a href='#!/Appointments/get_appointments_appointment_id' target='_new'>Show Appointment</a> should be called to check the preferred_confirmation_method of the Appointment. For Appointments showing a preferred_confirmation_method of 'none', the Patient does not wish to be contacted at all, and no confirmation attempts should be made.
+    parameters:
+      - name: appointment_id
+        in: path
+        description: GUID of the appointment
+        required: true
+        type: string
+        format: double
+      - name: confirmation
+        in: body
+        description: appointment confirmation payload
+        required: true
+        type: string
+        format: double
+        schema:
+          $ref: CreateAppointmentConfirmation_Request
+    tags:
+      - Appointment Confirmations
+    responses:
+      201:
+        description: appointment confirmation record
+        schema:
+          $ref: CreateAppointmentConfirmation_Response
+          # type: array
+          # items:
+            # $ref: CHANGETHIS
+# /appointment/listbyresource/{resource_id}:
+#   get:
+#     summary: List Appointments
+#     description: |
+#       List Appointments by Resource
+#     parameters:
+#       - name: resource_id
+#         in: path
+#         description: GUID of the resource
+#         required: true
+#         type: string
+#         format: double
+#     tags:
+#       - Appointments
+#     responses:
+#       200:
+#         description: details about a patient
+#         schema:
+#           #$ref: AppointmentsByResource
+#           type: array
+#           items:
+#             $ref: AppointmentsByResource
+#       404:
+#         description: resource not found for current practice
+/appointments/{appointment_id}/pending:
+  put:
+    summary: Change appointment status to pending
+    description: Returns the appointment object reflecting the change of state
+    parameters:
+      - name: appointment_id
+        in: path
+        description: appointment_id
+        required: true
+        type: string
+        format: double
+    tags:
+      - Appointments
+    responses:
+      200:
+        description: appointment json object
+        schema:
+          $ref: ShowAppointment_Response
+/appointments/{appointment_id}/check_in:
+  put:
+    summary: Check in appointment
+    description: Returns the appointment object reflecting the change of state
+    parameters:
+      - name: appointment_id
+        in: path
+        description: appointment_id
+        required: true
+        type: string
+        format: double
+    tags:
+      - Appointments
+    responses:
+      200:
+        description: appointment json object
+        schema:
+          $ref: ShowAppointment_Response
+/appointments/{appointment_id}/check_out:
+  put:
+    summary: Check out appointment
+    description: Returns the appointment object reflecting the change of state
+    parameters:
+      - name: appointment_id
+        in: path
+        description: appointment_id
+        required: true
+        type: string
+        format: double
+    tags:
+     - Appointments
+    responses:
+      200:
+        description: appointment json object
+        schema:
+          $ref: ShowAppointment_Response
+/providers:
+  get:
+    summary: List Providers
+    description: |
+      List Providers for a Practice
+    parameters:
+    tags:
+      - Providers
+    responses:
+      200:
+        description: list of providers for a practice
+        schema:
+          #$ref: NatureOfVisit
+          type: array
+          items:
+            $ref: Provider
+/physicians/{npi}:
+  get:
+    summary: Show Physician
+    description: |
+      Show physician based on their National Provider Identifier (NPI). If the physician is an organization, 
+      then the ```organization``` object will be returned, otherwise it will be null. 
+    parameters:
+      - name: npi
+        in: path
+        description: National Provider Identifier (NPI)
+        required: true
+        type: string
+        format: string
+    tags:
+      - Physicians
+    responses:
+      200:
+        description: details about a physician
+        schema:
+          $ref: Physician
+/appointments/{appointment_id}/cancel:
+  put:
+    summary: Cancel Appointment
+    description: |
+      Cancel an Appointment
+
+      An appointment_cancellation_reason_id can be obtained through the <a href='#!/Appointments/get_appointment_cancellation_reasons' target='_new'>List Appointment Cancellation Reasons</a> endpoint.
+    parameters:
+      - name: appointment_id
+        in: path
+        description: Appointment ID
+        required: true
+        type: string
+        format: double
+      - name: query
+        in: body
+        description: appointment cancellation payload
+        required: true
+        type: string
+        format: double
+        schema:
+          $ref: AppointmentCancel_Request
+    tags:
+      - Appointments
+    responses:
+      200:
+        description: appointment cancelled successfully
+        schema:
+          $ref: AppointmentCancel_Response
+      422:
+        description: validation error
+/appointment_resources:
+  get:
+    summary: List Appointment Resources
+    description: |
+      List Appointment Resources for a Practice
+    parameters:
+    tags:
+      - Appointment Resources
+    responses:
+      200:
+        description: list of appointment resources for a practice
+        schema:
+          #$ref: NatureOfVisit
+          type: array
+          items:
+            $ref: ListResources_Response
+/visit_reasons/{visit_reason_id}/appointment_resources:
+  get:
+    summary: List Appointment Resources for a Visit Reason
+    description: |
+      List Appointment Resources for a Practice, filtered by a Visit Reason
+    parameters:
+      - name: visit_reason_id
+        in: path
+        description: ID of the Visit Reason
+        required: true
+        type: string
+        format: double
+    tags:
+      - Appointment Resources
+    responses:
+      200:
+        description: filtered list of visit reasons for a practice
+        schema:
+          type: array
+          items:
+            $ref: ListResources_Response
+/appointment_resources/{resource_id}/visit_reasons:
+  get:
+    summary: List Visit Reasons for an Appointment Resource
+    description: |
+      List Visit Reasons for a Practice, filtered by an Appointment Resource
+    parameters:
+      - name: resource_id
+        in: path
+        description: ID of the Appointment Resource
+        required: true
+        type: string
+        format: double
+    tags:
+      - Appointment Visit Reasons
+    responses:
+      200:
+        description: filtered list of visit reasons for a practice
+        schema:
+          # $ref: NatureOfVisit
+          type: array
+          items:
+            $ref: NatureOfVisit
+/patients/{patient_id}/balance:
+  get:
+    summary: Show Balance for Patient
+    description: |
+      Show Balance information for a Patient
+    parameters:
+      - name: patient_id
+        in: path
+        description: ID of the Patient
+        required: true
+        type: string
+        format: double
+    tags:
+      - Patients
+    responses:
+      200:
+        description: balances by type
+        schema:
+          type: array
+          items:
+            $ref: PatientBalance
+/locations:
+  get:
+    summary: List Locations
+    description: |
+      List Locations for a Practice
+    parameters:
+    tags:
+      - Locations
+    responses:
+      200:
+        description: list of locations for a practice
+        schema:
+          #$ref: NatureOfVisit
+          type: array
+          items:
+            $ref: Location
+/visit_reasons:
+  get:
+    summary: List Visit Reasons
+    description: |
+      List Visit Reasons for a Practice
+    parameters:
+    tags:
+      - Appointment Visit Reasons
+    responses:
+      200:
+        description: list of visit reasons for a practice
+        schema:
+          #$ref: NatureOfVisit
+          type: array
+          items:
+            $ref: NatureOfVisit
+/appointment_recalls:
+  get:
+    summary: List Appointment Recalls
+    description: |
+      List Appointment Recalls in a Date Range
+
+      Results are paginated to 100 Appointment Recalls per page. The `page` parameter sets the page number to return, the default being `1`. Pagination state is indicated by the Link header, in accordance with <a href="https://tools.ietf.org/html/rfc5988#section-5">RFC5988</a>. The `Link` header contains URIs to the first, next, previous, and last pages in the result set. For an example see <a href="/v2/#pagination">Pagination</a>.
+    
+    parameters:
+      - name: start_date
+        in: query
+        description: start date
+        required: false
+        type: string
+        format: double
+      - name: end_date
+        in: query
+        description: end date
+        required: false
+        type: string
+        format: double
+      - name: recall_status
+        in: query
+        description: recall status
+        required: false
+        type: string
+        format: string
+      - name: page
+        in: query
+        description: page number
+        required: false
+        type: string
+        format: double
+    tags:
+      - Appointment Recalls
+    responses:
+      200:
+        description: list of appointment recalls for a practice by date range
+        schema:
+          type: array
+          items:
+            $ref: AppointmentRecall_Response
+        responseParameters:
+          method.response.header.Link: integration.response.header.Link
+        headers:
+          Link:
+            description: pagination links
+            type: string
+/appointment_recalls/{id}:
+  put:
+    summary: Update Appointment Recall
+    description: |
+      Update an Appointment Recall
+    parameters:
+      - name: id
+        in: path
+        description: id
+        required: true
+        type: string
+        format: double
+      - name: body
+        in: body
+        description: appointment recall update payload
+        required: true
+        type: string
+        format: double
+        schema:
+          $ref: AppointmentRecallUpdate_Request
+    tags:
+      - Appointment Recalls
+    responses:
+      204:
+        description: list of appointment recalls for a practice by date range
+        schema:
+          type: array
+          items:
+            $ref: AppointmentRecall_Response
+  get:
+      summary: Get Appointment Recall by ID
+      description: |
+        Get an Appointment Recall
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          type: string
+          format: double
+      tags:
+        - Appointment Recalls
+      responses:
+        200:
+          description: show appointment recall
+          schema:
+            $ref: AppointmentRecall_Response
+/appointment_recall_types:
+  get:
+    summary: List Appointment Recall Types
+    description: |
+      List Appointment Recall Types for a Practice
+    parameters:
+    tags:
+      - Appointment Recalls
+    responses:
+      200:
+        description: list of appointment recall types for a practice
+        schema:
+          type: array
+          items:
+            $ref: AppointmentRecallType_Response
+/patients/{patient_id}/transactions:
+  get:
+    summary: List Patient Transactions
+    description: |
+      List Transactions for a Patient
+
+      Filtering params are optional. Date filtering fields filter by posting_date.
+      Without date filtering, the past 30 days worth of posted transactions for the Patient will be returned.
+      With just a start_date, transactions posted 30 days from the start_date will be returned.
+
+      The following transaction_types exist:
+
+      ```
+      simple_charge_reversal
+      charge_reversal
+      returned_insurance_check_reversal
+      returned_patient_check_reversal
+      simple_charge
+      charge
+      returned_insurance_check
+      returned_patient_check
+      insurance_adjustment
+      insurance_adjustment_refund
+      insurance_adjustment_refund_reversal
+      insurance_adjustment_reversal
+      insurance_payment
+      insurance_payment_refund
+      insurance_payment_refund_reversal
+      insurance_payment_reversal
+      patient_adjustment
+      patient_adjustment_reversal
+      patient_payment
+      patient_payment_refund
+      patient_payment_refund_reversal
+      patient_payment_reversal
+      withhold
+      withhold_refund
+      withhold_refund_reversal
+      withhold_reversal
+      ```
+
+      The following transaction_statuses exist:
+
+      ```
+      posted
+      not_posted
+      closed
+      ```
+      
+      Results are paginated to 50 Transactions per page. The `page` parameter sets the page number to return, the default being `1`. Pagination state is indicated by the Link header, in accordance with <a href="https://tools.ietf.org/html/rfc5988#section-5">RFC5988</a>. The `Link` header contains URIs to the first, next, previous, and last pages in the result set. For an example see <a href="/v2/#pagination">Pagination</a>.
+    parameters:
+      - name: patient_id
+        in: path
+        description: Patient ID
+        required: true
+        type: string
+        format: double
+      - name: start_date
+        in: query
+        description: Start Date
+        required: false
+        type: string
+        format: double
+      - name: end_date
+        in: query
+        description: End Date
+        required: false
+        type: string
+        format: double
+      # - name: page
+      #   in: query
+      #   description: page number
+      #   required: false
+      #   type: string
+      #   format: double
+    tags:
+      - Patients
+    responses:
+      200:
+        description: list of patient transactions
+        schema:
+          #$ref: AppointmentStatus
+          type: array
+          items:
+            $ref: Transaction_Response
+        # responseParameters:
+        #   method.response.header.Link: integration.response.header.Link
+        # headers:
+        #   Link:
+        #     description: pagination links
+        #     type: string
+
+
+
+/patients/{patient_id}/charges:
+  get:
+    summary: List Patient Charges
+    description: |
+      List Charges for a Patient
+
+      Filtering params are optional. Date filtering fields filter by posting_date.
+      Without date filtering, the past 30 days worth of posted charges for the Patient will be returned.
+      With just a start_date, charges posted 30 days from the start_date will be returned.
+
+      The following types of charges exist:
+
+      ```
+      simple_charge
+      charge
+      ```
+
+      The following transaction_statuses exist:
+
+      ```
+      posted
+      not_posted
+      closed
+      ```
+      
+      Results are paginated to 50 Transactions per page. The `page` parameter sets the page number to return, the default being `1`. Pagination state is indicated by the Link header, in accordance with <a href="https://tools.ietf.org/html/rfc5988#section-5">RFC5988</a>. The `Link` header contains URIs to the first, next, previous, and last pages in the result set. For an example see <a href="/v2/#pagination">Pagination</a>.
+    parameters:
+      - name: patient_id
+        in: path
+        description: Patient ID
+        required: true
+        type: string
+        format: double
+      - name: start_date
+        in: query
+        description: Start Date
+        required: false
+        type: string
+        format: double
+      - name: end_date
+        in: query
+        description: End Date
+        required: false
+        type: string
+        format: double
+      # - name: page
+      #   in: query
+      #   description: page number
+      #   required: false
+      #   type: string
+      #   format: double
+    tags:
+      - Patients
+    responses:
+      200:
+        description: list of patient charges
+        schema:
+          #$ref: AppointmentStatus
+          type: array
+          items:
+            $ref: Transaction_Response
+        # responseParameters:
+        #   method.response.header.Link: integration.response.header.Link
+        # headers:
+        #   Link:
+        #     description: pagination links
+        #     type: string
+
+/oauth2/authorization:
+  get:
+    summary: Authorization Details
+    description:
+      Show information about an authorization grant, such as the Practice ID, OAuth scopes, and the User who allowed it
+    tags:
+      - OAuth
+    responses:
+      200:
+        description: info about an authorization
+        schema:
+          $ref: OAuth2Authorization_Response
+/oauth2/token_info:
+  get:
+    summary: Token Details
+    description:
+      Show information about a token, such as the time remaining until it expires
+    tags:
+      - OAuth
+    responses:
+      200:
+        description: info about a token
+        schema:
+          $ref: OAuth2TokenInfo_Response
+/encounter_notes/{encounter_id}/merge_transcriptions:
+  put:
+    summary: Merge Clinical Transcriptions
+    description: Update encounter note with clinical transcription
+    parameters:
+      - name: transcription
+        in: body
+        description: |
+          Endpoint takes thirteen fields, with the transcription's paragraphs as items in an array:
+
+          Possible fields are:
+
+          ```
+          chief_complaint
+          history_of_present_illness
+          therapy
+          surgical_history
+          social_history
+          past_medical_history
+          current_medications
+          allergies
+          family_history
+          review_of_systems
+          physical_examination
+          diagnostic_imaging
+          impression_plan
+          ```
+        required: true
+        type: string
+        format: double
+        schema:
+          $ref: EncounterNoteTranscription
+      - name: encounter_id
+        in: path
+        description: encounter_id
+        required: true
+        type: string
+        format: double
+    tags:
+      - Encounter Notes
+    responses:
+      200:
+        description: Successfully updated encounter note
+      400:
+        description: Bad Request, JSON is malformed OR one or more of the sections is not supported
+      404:
+        description: Not Found, Encounter ID passed in URL does not have a Encounter Note associated to it.
+      423:
+        description: Locked, Encounter note is being updated
+      409:
+        description: Conflict, Cannot update encounter note because it's not in an updatable state (namely, created or amended)
+/waitlist:
+  get:
+    summary: Read Waitlist
+    description: Show all waitlist requests for a cancelled appointment's time, location, and resource
+    parameters:
+      - name: appointment_id
+        in: query
+        description: cancelled appointment's id
+        required: true
+        type: string
+        format: double
+    tags:
+      - Appointment Waitlist
+    responses:
+      200:
+        description: Retrieved waitlist successfully
+      423:
+        description: Appointment slot has a hold placed, waitlist is locked
+/waitlist/book:
+  post:
+    summary: Book an appointment from the waitlist
+    description: Schedule an appointment from the waitlist on a cancelled appointment's slot
+    parameters:
+      - name: body
+        in: body
+        description: cancelled appointment ID and waitlist request ID
+        required: true
+        type: string
+        format: double
+        schema:
+          $ref: WaitlistBookPayload
+    tags:
+      - Appointment Waitlist
+    responses:
+      200:
+        description: Appointment successfully booked

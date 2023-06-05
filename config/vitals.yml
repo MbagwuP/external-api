@@ -1,0 +1,5 @@
+probes:
+  - "dms:critical"
+  - "webservice:critical"
+  - "mem_cache:critical"
+  - "cc_auth:critical"
